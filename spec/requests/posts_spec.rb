@@ -60,6 +60,24 @@ RSpec.describe "Posts", type: :request do
       # Podemos usar el numero ejemplo 200 o el identificador :created
       expect(response).to have_http_status(:created)
     end
+
+    # Aqui vamos a verificar si lo que devuelve despues de la creacion es lo adecuado
+    it "should return error message on invalid a post" do
+      req_payload = {
+        post: {
+          content: "content",
+          published: false,
+          user_id: user.id
+        }
+      }
+
+      # POST HTTP
+      post "/posts", params: req_payload
+      payload = JSON.parse(response.body)
+      expect(payload).to_not be_empty
+      expect(payload["error"]).to_not be_empty
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
   end
 
   describe "PUT /posts/{id}" do
@@ -81,6 +99,25 @@ RSpec.describe "Posts", type: :request do
       expect(payload["id"]).to eq(article.id)
       # Podemos usar el numero ejemplo 200 o el identificador :created
       expect(response).to have_http_status(:ok)
+    end
+
+
+    # Aqui vamos a verificar si al hacer el PUT nos devuelve lo adecuado
+    it "should return error message on invalid a post" do
+      req_payload = {
+        post: {
+          title: nil,
+          content: nil,
+          published: false,
+        }
+      }
+
+      # PUT HTTP
+      post "/posts/#{article.id}", params: req_payload
+      payload = JSON.parse(response.body)
+      expect(payload).to_not be_empty
+      expect(payload["error"]).to_not be_empty
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 end
