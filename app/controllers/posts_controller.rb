@@ -1,5 +1,12 @@
 class PostsController < ApplicationController
 
+  # Sirve para ejecutar una accion antes de entrar al controlador
+  # Cuando creamos una accion que puede modificar el comportamiento de un request usamos el !
+  # Aqui lo usamos en el authenticate_user.
+  # y luego usamos el only para decir que solo debe ser ejecutado antes de un create y un update
+  # Esto lo implementaremos al finla
+  before_action :authenticate_user!, only: [:create, :update] 
+
   # Manejo de excepciones en rails
   # Despues de rescue_from usa el valor que obtienes en la consola luego de ejecutar rspec
   # o cualquier otra excepcion que quieras validar
@@ -53,5 +60,24 @@ class PostsController < ApplicationController
 
   def update_params
     params.require(:post).permit(:title, :content, :published)
+  end
+
+  def authenticate_user! 
+    # Bearer xxxx
+    token_regex = /Bearer (\w+)/ 
+    # leer header de auth
+    headers = request.headers
+    # verificar que sea valido
+    if headers['Authorization'].present? && headers['Authorization'].match(token_regex)
+      token = headers['Authorization'].match(token_regex)[1]
+      # devemos verificar que corresponda a un usuario
+      # en ruby toda variable tiene en valor truthy y falsy
+      # la siguiente expresion si se puede verificar
+      # Current nos ayuda a guardar el usuario para que sea accesible en cualquier contexto de la app
+      if( Current.user = User.find_by_auth_token(token) )
+        return
+      end
+    end
+    render json: {error: 'Unauthorized'}, status: :unauthorized
   end
 end
