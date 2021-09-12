@@ -56,9 +56,9 @@ RSpec.describe "Posts", type: :request do
       post "/posts", params: req_payload
       payload = JSON.parse(response.body)
       expect(payload).to_not be_empty
-      expect(payload["id"]).to_not be_empty
+      expect(payload["id"]).to_not be_nil
       # Podemos usar el numero ejemplo 200 o el identificador :created
-      expect(response).to have_http_status(:created)
+      expect(response).to have_http_status(200)
     end
 
     # Aqui vamos a verificar si lo que devuelve despues de la creacion es lo adecuado
@@ -93,7 +93,7 @@ RSpec.describe "Posts", type: :request do
       }
 
       # PUT HTTP
-      post "/posts/#{article.id}", params: req_payload
+      put "/posts/#{article.id}", params: req_payload
       payload = JSON.parse(response.body)
       expect(payload).to_not be_empty
       expect(payload["id"]).to eq(article.id)
@@ -113,7 +113,7 @@ RSpec.describe "Posts", type: :request do
       }
 
       # PUT HTTP
-      post "/posts/#{article.id}", params: req_payload
+      put "/posts/#{article.id}", params: req_payload
       payload = JSON.parse(response.body)
       expect(payload).to_not be_empty
       expect(payload["error"]).to_not be_empty
