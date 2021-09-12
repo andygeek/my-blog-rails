@@ -1,4 +1,20 @@
 class PostsController < ApplicationController
+
+  # Manejo de excepciones en rails
+  # Despues de rescue_from usa el valor que obtienes en la consola luego de ejecutar rspec
+  # o cualquier otra excepcion que quieras validar
+  # El orden en el que se colocan las excepciones es muy importante
+  # el que está más abajo tiene mayor prioridad, es decir si Exception estaria más abajo
+  # este tendria prioridad dobre un ActiveRecord que encuentre
+  rescue_from Exception do |e|
+    # log.error "#{e.message}"  En produccion tendriamos esto
+    render json: {error: e.message}, status: :internal_error
+  end
+  
+  rescue_from ActiveRecord::RecordInvalid do |e|
+    render json: {error: e.message}, status: :unprocessable_entity
+  end
+
   # GET /post
   def index
     @posts = Post.where(published: true)
