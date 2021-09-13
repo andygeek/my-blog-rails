@@ -95,7 +95,35 @@ RSpec.describe "Posts with authentication", type: :request do
     # con auth ->
       # actualizar un post nuestro
       # !actualizar un post de otro -> 401
-    # sin auth -> !actualizar -> 401
+
+    context "with valid auth" do
+      context "when updating users's post" do
+        before { put "/posts/#{user_post.id}", params: update_params, headers: auth_headers }
+        context "payload" do
+          subject { payload }
+          it { is_expected.to include(:id, :title, :content, :published)}
+          it { expect(payload[:id]).to eq(user_post.id) }
+        end
+  
+        context "response" do
+          subject {response}
+          it {is_expected.to have_http_status(:ok)}
+        end      
+      end
+
+      context "when updating other users's post" do
+        before { put "/posts/#{other_user_post.id}", params: update_params, headers: auth_headers }
+        context "payload" do
+          subject { payload }
+          it { is_expected.to include(:error)}
+        end
+  
+        context "response" do
+          subject {response}
+          it {is_expected.to have_http_status(:not_found)}
+        end      
+      end
+    end
   end
 
   private 

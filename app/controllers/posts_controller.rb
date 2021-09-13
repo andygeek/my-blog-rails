@@ -8,6 +8,7 @@ class PostsController < ApplicationController
   before_action :authenticate_user!, only: [:create, :update, :show] 
   # OJO: Le puse el show para que la prueba de show siempre pase, la otra serie haciendo que su published siempre sea true
 
+
   # Manejo de excepciones en rails
   # Despues de rescue_from usa el valor que obtienes en la consola luego de ejecutar rspec
   # o cualquier otra excepcion que quieras validar
@@ -17,6 +18,12 @@ class PostsController < ApplicationController
   rescue_from Exception do |e|
     # log.error "#{e.message}"  En produccion tendriamos esto
     render json: {error: e.message}, status: :internal_error
+  end
+
+  # Si te sale que no se reconoce el status code, es porque la excepcion lo la reconoce
+  # en caso de que te devuelva un ActiveRecord::RecordNotFound esta nos e reconoce, por loq ue debemos agregar una excepcion
+  rescue_from ActiveRecord::RecordNotFound do |e|
+    render json: {error: e.message}, status: :not_found
   end
   
   rescue_from ActiveRecord::RecordInvalid do |e|
