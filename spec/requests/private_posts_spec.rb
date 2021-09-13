@@ -11,17 +11,23 @@ RSpec.describe "Posts with authentication", type: :request do
   let!(:other_auth_headers) {{'Authorization' => "Bearer #{other_user.auth_token}" } }
   # Authorization: Bearer xxxxx
 
+  let!(:create_params) { { "post" => { "title" => "title", "content" => "content", "published" => true } } }
+  let!(:update_params) { { "post" => { "title" => "title", "content" => "content", "published" => true } } }
+
+
   describe "GET /posts" do
     # context es otra forma de darle contexto a las pruebas
     context "with valid auth" do
       context "when requisting other's author post" do
         context "when post is public" do
-          before { get "/posts/#{other_user_post.id}", headers: auth_headers }
+          before { get "/posts/#{other_user_post.id}", headers: other_auth_headers }
+          
           context "payload" do
             # payload
             subject { payload }
             it { is_expected.to include(:id) }
           end
+
           context "response" do
             # response
             subject { response }
@@ -37,7 +43,7 @@ RSpec.describe "Posts with authentication", type: :request do
             subject { payload }
             it { is_expected.to include(:error) }
           end
-          context "response"do
+          context "response" do
             # response
             subject { response }
             it { is_expected.to have_http_status(:not_found)}
@@ -51,11 +57,31 @@ RSpec.describe "Posts with authentication", type: :request do
   end
 
   describe "POST /posts" do
-  
+    # con auth -> crear
+    context "with valid auth" do
+      # usamos la estructura donde primero tomamos el request y luego
+      # verificamos lo que tenga el response
+      before { post "/posts", params: create_params, headers: auth_headers }
+      
+      context "payload" do
+        subject { payload }
+        it { is_expected.to include(:id, :title, :content, :published)}
+      end
+
+      context "response" do
+        subject {response}
+        it {is_expected.to have_http_status(:ok)}
+      end
+    end
+    # sin auth -> !crear -> 401
+
   end
 
   describe "PUT /posts" do
-  
+    # con auth ->
+      # actualizar un post nuestro
+      # !actualizar un post de otro -> 401
+    # sin auth -> !actualizar -> 401
   end
 
   private 

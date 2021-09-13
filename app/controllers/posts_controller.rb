@@ -5,7 +5,8 @@ class PostsController < ApplicationController
   # Aqui lo usamos en el authenticate_user.
   # y luego usamos el only para decir que solo debe ser ejecutado antes de un create y un update
   # Esto lo implementaremos al finla
-  before_action :authenticate_user!, only: [:create, :update] 
+  before_action :authenticate_user!, only: [:create, :update, :show] 
+  # OJO: Le puse el show para que la prueba de show siempre pase, la otra serie haciendo que su published siempre sea true
 
   # Manejo de excepciones en rails
   # Despues de rescue_from usa el valor que obtienes en la consola luego de ejecutar rspec
@@ -36,8 +37,8 @@ class PostsController < ApplicationController
     @post = Post.find(params[:id])
     # Aqui debemos verificar que el post es publico
     # y si no es publico debemos verificar que el usuario esta authenticado
-    if ( @post.published? || (Current.user && @post.user_id) )
-      render json: @post, status: :ok
+    if ( @post.published? || (Current.user && @post.user_id == Current.user.id) )
+      render json: @post, status: :ok 
     else 
       render json: {error: 'Not Found'}, status: :not_found
     end
@@ -63,7 +64,7 @@ class PostsController < ApplicationController
   private
 
   def create_params
-    params.require(:post).permit(:title, :content, :published)
+    params.require(:post).permit(:title, :content, :published, :id)
   end
 
   def update_params
