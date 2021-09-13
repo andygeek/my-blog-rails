@@ -5,7 +5,7 @@ class PostsController < ApplicationController
   # Aqui lo usamos en el authenticate_user.
   # y luego usamos el only para decir que solo debe ser ejecutado antes de un create y un update
   # Esto lo implementaremos al finla
-  before_action :authenticate_user!, only: [:create, :update, :show] 
+  before_action :authenticate_user!, only: [:create, :update] 
   # OJO: Le puse el show para que la prueba de show siempre pase, la otra serie haciendo que su published siempre sea true
 
 
