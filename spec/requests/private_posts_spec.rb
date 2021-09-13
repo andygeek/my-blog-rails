@@ -73,8 +73,22 @@ RSpec.describe "Posts with authentication", type: :request do
         it {is_expected.to have_http_status(:ok)}
       end
     end
-    # sin auth -> !crear -> 401
 
+    # sin auth -> !crear -> 401
+    context "without auth" do
+      # Aqui le paso sin header
+      before { post "/posts", params: create_params }
+      
+      context "payload" do
+        subject { payload }
+        it { is_expected.to include(:error)}
+      end
+
+      context "response" do
+        subject {response}
+        it {is_expected.to have_http_status(:unauthorized)}
+      end
+    end
   end
 
   describe "PUT /posts" do
